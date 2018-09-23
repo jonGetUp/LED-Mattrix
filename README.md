@@ -3,7 +3,7 @@
  *  Infos: Display the text present on "your...API" across a 128x8 Leds-Matrix.
  *	Equipment:
  *	- ArduinoMega with a Yunshield or an Arduino Yunshield
- * 		Warning: arduino Uno doesn't have enoug RAM
+ * 		Warning: arduino Uno doesn't have enough RAM
  *	- Four 32x8 Adafruit_NeoMatrix
  */
 
