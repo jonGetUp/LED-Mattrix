@@ -1,5 +1,5 @@
 /*  Autors: jonGetUp & Tonton
- *  Date: 20.09.2018
+ *  Date: 18.10.2018
  *  Infos: Display the text present on "your...API" across a 128x8 Leds-Matrix.
  *	Equipment:
  *	- ArduinoMega with a Yunshield or an Arduino Yunshield
@@ -11,15 +11,13 @@
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_NeoPixel.h>
 #include <Process.h>
-#include <Wire.h>  // Comes with Arduino IDE
-#include <LiquidCrystal_I2C.h>
 #ifndef PSTR
  #define PSTR // Make Arduino MEGA happy
 #endif
 
 #define PIN 6
 
-/*-----( MATTRIX declaration)-----*/
+// MATRIX DECLARATION:
 // Parameter 1 = width of NeoPixel matrix
 // Parameter 2 = height of matrix
 // Parameter 3 = tiles number of X axis
@@ -50,25 +48,26 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, 4, 1, PIN,
   NEO_TILE_BOTTOM    + NEO_TILE_RIGHT   + NEO_TILE_COLUMNS   + NEO_TILE_PROGRESSIVE,
   NEO_GRB            + NEO_KHZ800);
 
-/*-----( Declare Variables )-----*/
-String text = "";
-int f = 0;  //index for loop
-int x = matrix.width();
-int sL = 0; //String length
+String text;
+int i;
 
-void setup() {/*----( SETUP: RUNS ONCE )----*/
+void setup() {
   Bridge.begin();
   matrix.begin();
-  matrix.setTextWrap(false); // Allow text to run off right edge
-  matrix.setBrightness(50);
+  matrix.setTextWrap(false); // Allow text to run off right edge (to scroll)
+  matrix.setBrightness(60);
   matrix.setTextColor(matrix.Color(255, 255, 255));
+  i = 0;
+  runCurl();
+}
 
-  }/*--( end setup )---*/
+int x = matrix.width();
+int pass = 0;
 
 void loop() {/*----( LOOP )----*/
-  matrix.fillScreen(0); 	//turn all pixel off
-  if(text != runCurl()) {	//watch the network change
-    text = runCurl();
+  matrix.fillScreen(0); //turn all pixel off
+  if(text.equals(runCurl()) == 0) {  //watch the network change
+    strcpy(text, runCurl());
     sL = text.length();
     if(sL <= 21) {  //short text
         matrix.setCursor(x, 0);
@@ -80,11 +79,11 @@ void loop() {/*----( LOOP )----*/
       for(f = 0; f < 10; f++) { //repeat 10 time the text
         matrix.fillScreen(0); //turn all pixel off
         matrix.setCursor(x, 0);
-        matrix.print(text); 
+        matrix.print(text);
         if(--x < -(sL*6)) { //decrement x each test, shift one matrix width and 6 time per char     
           x = matrix.width();}
         matrix.show();
-        delay(80);
+        delay(75);
       }
     }
   }
@@ -96,7 +95,7 @@ String runCurl() {/*----( runCurl: talk with the network )----*/
   // curl is command line program for transferring data using different internet protocols
   Process p;        // Create a process and call it "p"
   p.begin("curl");  // Process that launch the "curl" command
-  p.addParameter("http://..........."); // Add the URL parameter to "curl"
+  p.addParameter("http://ooy.ch/result.php"); // Add the URL parameter to "curl"
   p.run();  // Run the process and wait for its termination
 
   while (p.available()>0) {
@@ -104,4 +103,4 @@ String runCurl() {/*----( runCurl: talk with the network )----*/
     netText += p.read();
   }
   return netText;
-  }/*----( end runCurl )----*/
+}
